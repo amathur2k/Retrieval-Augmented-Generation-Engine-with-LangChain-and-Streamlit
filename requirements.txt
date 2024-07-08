@@ -8,3 +8,6 @@ openai
 chromadb
 tiktoken
 langchain-community
+psutil
+
+
