@@ -1,5 +1,5 @@
-langchain==0.0.279
-pinecone_client==2.2.2
+langchain
+pinecone_client
 streamlit
 unstructured
 unstructured[pdf]
