@@ -1,5 +1,6 @@
 langchain
 langchain_openai
+langchain_pinecone
 pinecone_client
 streamlit
 unstructured
