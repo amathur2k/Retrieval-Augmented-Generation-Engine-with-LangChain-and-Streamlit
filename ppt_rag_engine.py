@@ -1,4 +1,6 @@
 import os, tempfile
+import glob
+
 import pinecone
 from pathlib import Path
 import random
@@ -22,19 +24,29 @@ from langchain.vectorstores import Pinecone as PineconeStore
 from pinecone import Pinecone as Pinecone1
 from pinecone import ServerlessSpec
 
+from langchain_community.document_loaders import UnstructuredPowerPointLoader
+
 import streamlit as st
 
 TMP_DIR = Path(__file__).resolve().parent.joinpath('data', 'tmp')
 LOCAL_VECTOR_STORE_DIR = Path(__file__).resolve().parent.joinpath('data', 'vector_store')
 embeddings = None
 
-st.set_page_config(page_title="RAG")
-st.title("Retrieval Augmented Generation Engine")
+st.set_page_config(page_title="PPT RAG")
+st.title("PPT Retrieval Augmented Generation Engine")
 
 
 def load_documents():
-    loader = DirectoryLoader(TMP_DIR.as_posix(), glob='**/*.pdf')
-    documents = loader.load()
+    #loader = DirectoryLoader(TMP_DIR.as_posix(), glob='**/*.ppt*')
+    files1 = glob.glob(TMP_DIR.joinpath("tmp").with_name("*.ppt*").as_posix())
+    #st.warning("Jai Bhalla " + str(files1))
+    #print(files1)
+
+    documents = list()
+    for file1 in files1:
+        loader = UnstructuredPowerPointLoader(file1)
+        documents = documents + loader.load()
+
     return documents
 
 
@@ -131,7 +143,7 @@ def input_fields():
     st.session_state.pinecone_db = st.toggle('Use Pinecone Vector DB')
     #
     st.button("Reuse Existing Index w/o upload", on_click=reuse_index)
-    st.session_state.source_docs = st.file_uploader(label="Upload Documents", type="pdf", accept_multiple_files=True)
+    st.session_state.source_docs = st.file_uploader(label="Upload Documents", type="pptx", accept_multiple_files=True)
     #
 
 
@@ -161,7 +173,7 @@ def process_documents():
         try:
             for source_doc in st.session_state.source_docs:
                 #
-                with tempfile.NamedTemporaryFile(delete=False, dir=TMP_DIR.as_posix(), suffix='.pdf') as tmp_file:
+                with tempfile.NamedTemporaryFile(delete=False, dir=TMP_DIR.as_posix(), suffix='.pptx') as tmp_file:
                     #st.warning(f"xxxx"+str(tmp_file.name))
                     #st.warning(f"xxxx"+str(TMP_DIR.as_posix()))
                     tmp_file.write(source_doc.read())
